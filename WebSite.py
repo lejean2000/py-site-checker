@@ -3,6 +3,7 @@
 import os
 import pickle
 import hashlib
+import difflib
 from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
@@ -36,7 +37,10 @@ class WebSite:
     def retrieve(self):
         """Retrieves the latest version of the page
         """
-        header = {'user-agent': "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.121 Safari/537.36 OPR/71.0.3770.198"}
+        user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        user_agent += "AppleWebKit/537.36 (KHTML, like Gecko) "
+        user_agent += "Chrome/85.0.4183.121 Safari/537.36 OPR/71.0.3770.198"
+        header = {'user-agent': user_agent}
 
         # Only retrieve pages older than 3 days
         if self.num_pages_in_db > 0:
@@ -55,7 +59,7 @@ class WebSite:
             self.save()
             self.num_pages_in_db += 1
         else:
-            print("ERROR: status code was " + str(response.status_code))
+            print("ERROR: status code was " + str(response.status_code) + " URL: " + self.url)
 
     def save(self):
         with open(self.dbpath, 'wb+') as f:
@@ -96,3 +100,19 @@ class WebSite:
         if sim < 1:
             print(f"{self.url} has changed. Similarity is: "+str(sim))
         return sim
+
+    def diff(self, pos1: int = 1, pos2: int = 0):
+        """Compare versions at pos1 and pos2,
+        counting backwards in time
+
+        Parameters
+        ----------
+        pos1 : int, optional
+            First version position, by default 1
+        pos2 : int, optional
+            Second version position, by default 0
+        """
+        t0 = self.get_text(pos1).splitlines(keepends=True)
+        t1 = self.get_text(pos2).splitlines(keepends=True)
+        diff = difflib.unified_diff(t0, t1)
+        print(''.join(diff), end="")
