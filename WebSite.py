@@ -78,7 +78,7 @@ class WebSite:
         str
             stripped html page version
         """
-        html = self.contents[self.num_pages_in_db-1-position]['content'].decode("utf-8")
+        html = self.contents[self.num_pages_in_db-1-position]['content']
         soup = BeautifulSoup(html, features="html.parser")
         return soup.get_text(separator="\n", strip=True)
 
