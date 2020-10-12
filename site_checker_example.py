@@ -14,8 +14,8 @@ PICKLE_FOLDER = 'sites'
 # Check all sites for updates
 for url in SITES:
     site = WebSite(url, PICKLE_FOLDER)
-    site.retrieve()
-    site.check_for_changes()
+    if site.retrieve():
+        site.check_for_changes()
 
 # compare last and second to last version of one site
 url = 'http://www.bolyaiverseny.hu/matek/feladat_regi.htm'

@@ -34,8 +34,14 @@ class WebSite:
     def get_latest_date(self) -> datetime:
         return self.contents[self.num_pages_in_db-1]['date']
 
-    def retrieve(self):
+    def retrieve(self) -> bool:
         """Retrieves the latest version of the page
+
+        Returns
+        -------
+        bool
+            True, if a new version has been retrieved.
+            False otherwise.
         """
         user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
         user_agent += "AppleWebKit/537.36 (KHTML, like Gecko) "
@@ -47,7 +53,7 @@ class WebSite:
             age = (datetime.now() - self.get_latest_date()).days
             if age < 3:
                 print(f"WARN: Will not retrieve age {age} for {self.url}")
-                return
+                return False
 
         response = requests.get(self.url, headers=header)
 
@@ -58,8 +64,10 @@ class WebSite:
             })
             self.save()
             self.num_pages_in_db += 1
+            return True
         else:
             print("ERROR: status code was " + str(response.status_code) + " URL: " + self.url)
+            return False
 
     def save(self):
         with open(self.dbpath, 'wb+') as f:
